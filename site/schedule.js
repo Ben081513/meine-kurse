@@ -54,9 +54,23 @@ const Schedule = (() => {
     return m.from < m.to;
   }
 
-  // A class fits when it starts at or after "von" and is over by "bis".
-  function fitsWindow(cls, windows) {
-    const w = windowMinutes(cls.day >= 6 ? windows.weekend : windows.weekday);
+  // settings.days[day]: true = the shared time, false = not a training day,
+  // { from, to } = this day's own time. Returns null for a day that is off.
+  function dayWindow(settings, day) {
+    const d = settings.days[day];
+    if (d === false) return null;
+    return d && typeof d === "object" ? d : settings.time;
+  }
+
+  function activeDays(settings) {
+    return [1, 2, 3, 4, 5, 6, 7].filter((day) => dayWindow(settings, day));
+  }
+
+  // A class fits when its day is on, it starts at or after "von" and is over by "bis".
+  function fitsWindow(cls, settings) {
+    const own = dayWindow(settings, cls.day);
+    if (!own) return false;
+    const w = windowMinutes(own);
     return cls.from >= w.from && cls.to <= w.to;
   }
 
@@ -82,14 +96,15 @@ const Schedule = (() => {
     for (const studio of schedule.studios) {
       if (!studios.has(studio.slug)) continue;
       for (const cls of studio.classes) {
-        if (!courses.has(cls.name) || !fitsWindow(cls, settings.windows)) continue;
+        if (!courses.has(cls.name) || !fitsWindow(cls, settings)) continue;
         entries.push({ cls, studio, bauch: bauchAround(cls, studio.classes) });
       }
     }
     return entries;
   }
 
-  // Monday to Sunday, each with its matching classes sorted by time.
+  // The training days Monday to Sunday, each with its matching classes sorted by
+  // time. Days that are switched off are left out entirely.
   function buildDays(schedule, settings, today) {
     const byDay = new Map();
     for (const e of entriesFor(schedule, settings)) {
@@ -97,7 +112,7 @@ const Schedule = (() => {
       byDay.get(e.cls.day).push(e);
     }
     const todayDay = isoDay(today);
-    return [1, 2, 3, 4, 5, 6, 7].map((day) => ({
+    return activeDays(settings).map((day) => ({
       day,
       name: DAY_NAMES[day],
       isToday: day === todayDay,
@@ -121,7 +136,8 @@ const Schedule = (() => {
   }
 
   return {
-    clean, buildDays, bauchAround, courseGroups, fitsWindow, isWindowValid, shortName, collator,
+    clean, buildDays, bauchAround, courseGroups, fitsWindow, dayWindow, activeDays, isWindowValid,
+    shortName, collator, DAY_NAMES,
   };
 })();
 

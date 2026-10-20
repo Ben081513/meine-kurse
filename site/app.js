@@ -42,11 +42,10 @@
 
   // The lines under the PDF title: plan date and which search it shows.
   function pdfHeader() {
-    const w = settings.windows;
     return [
       els.stand.textContent,
       `Kurse: ${settings.courses.map(Schedule.shortName).join(", ")}`,
-      `Mo–Fr ${w.weekday.from}–${w.weekday.to} · Sa–So ${w.weekend.from}–${w.weekend.to}`,
+      DayTimes.summary(settings),
     ];
   }
 
@@ -144,9 +143,14 @@
     shownDay = today.toDateString();
     try {
       showStand();
-      els.pdf.disabled = Settings.isEmpty(settings);
+      const noDays = !Schedule.activeDays(settings).length;
+      els.pdf.disabled = Settings.isEmpty(settings) || noDays;
       if (Settings.isEmpty(settings)) {
         els.list.replaceChildren(el("p", "empty", "Wähle unter „Einstellungen“ deine Studios und Kurse aus."));
+        return;
+      }
+      if (noDays) {
+        els.list.replaceChildren(el("p", "empty", "Wähle unter „Einstellungen“ mindestens einen Trainingstag aus."));
         return;
       }
       const days = Schedule.buildDays(schedule, settings, today);
@@ -167,15 +171,11 @@
     else els.open.focus();
   }
 
-  function windowEls(group) {
-    return { from: $(`${group}-from`), to: $(`${group}-to`), warn: $(`${group}-warn`) };
-  }
-
   function bindSettings() {
     Settings.bind({
       studios: $("studio-chips"),
       courses: $("course-chips"),
-      windows: { weekday: windowEls("weekday"), weekend: windowEls("weekend") },
+      dayTimes: $("day-times"),
       showBauch: $("show-bauch"),
     }, schedule, settings, (next) => {
       settings = next;

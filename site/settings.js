@@ -1,16 +1,16 @@
-// The user's choice of studios, courses and time windows: kept in localStorage
-// and edited on the settings screen.
+// The user's choice of studios, courses, training days and times: kept in
+// localStorage and edited on the settings screen.
 const Settings = (() => {
-  const KEY = "meine-kurse:settings:v1";
-  const GROUPS = ["weekday", "weekend"];
-  const EDGES = ["from", "to"];
+  const KEY = "meine-kurse:settings:v2";
+  const OLD_KEY = "meine-kurse:settings:v1";
+  const DAYS = [1, 2, 3, 4, 5, 6, 7];
+  const ALL_DAY = { from: "00:00", to: "23:59" };
+  // days: true = the shared time, false = not a training day, { from, to } = own time.
   const DEFAULTS = {
     studios: [],
     courses: [],
-    windows: {
-      weekday: { from: "00:00", to: "23:59" },
-      weekend: { from: "00:00", to: "23:59" },
-    },
+    time: { ...ALL_DAY },
+    days: { 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true },
     showBauch: true,
   };
 
@@ -22,22 +22,45 @@ const Settings = (() => {
     return Array.isArray(list) ? list.filter((x) => typeof x === "string") : [];
   }
 
+  function time(raw, fallback) {
+    return { from: validTime(raw && raw.from, fallback.from), to: validTime(raw && raw.to, fallback.to) };
+  }
+
   function normalize(raw) {
     const s = structuredClone(DEFAULTS);
     if (!raw || typeof raw !== "object") return s;
     s.studios = strings(raw.studios);
     s.courses = strings(raw.courses);
     if (typeof raw.showBauch === "boolean") s.showBauch = raw.showBauch;
-    for (const group of GROUPS) {
-      const w = raw.windows && raw.windows[group];
-      for (const edge of EDGES) s.windows[group][edge] = validTime(w && w[edge], s.windows[group][edge]);
+    s.time = time(raw.time, ALL_DAY);
+    for (const day of DAYS) {
+      const d = raw.days && raw.days[day];
+      if (d === false) s.days[day] = false;
+      else if (d && typeof d === "object") s.days[day] = time(d, s.time);
     }
+    return s;
+  }
+
+  // The old format had one window for Mo–Fr and one for Sa–So. The Mo–Fr time
+  // becomes the shared time; Sa and So get their own only when it differed.
+  function fromV1(raw) {
+    const s = normalize(raw);
+    const w = raw && raw.windows;
+    if (!w) return s;
+    s.time = time(w.weekday, ALL_DAY);
+    const weekend = time(w.weekend, ALL_DAY);
+    const same = weekend.from === s.time.from && weekend.to === s.time.to;
+    s.days[6] = same ? true : { ...weekend };
+    s.days[7] = same ? true : { ...weekend };
     return s;
   }
 
   function load() {
     try {
-      return normalize(JSON.parse(localStorage.getItem(KEY)));
+      const saved = localStorage.getItem(KEY);
+      if (saved !== null) return normalize(JSON.parse(saved));
+      const old = localStorage.getItem(OLD_KEY);
+      return old === null ? structuredClone(DEFAULTS) : fromV1(JSON.parse(old));
     } catch (err) {
       console.warn("Gespeicherte Auswahl unlesbar, starte leer", err);
       return structuredClone(DEFAULTS);
@@ -109,50 +132,30 @@ const Settings = (() => {
     return [...container.querySelectorAll("input:checked")].map((i) => i.value);
   }
 
-  // Reads the time fields; an emptied field gets its default back, visibly.
-  function readWindows(windowEls) {
-    const windows = {};
-    for (const group of GROUPS) {
-      windows[group] = {};
-      for (const edge of EDGES) {
-        const input = windowEls[group][edge];
-        input.value = validTime(input.value, DEFAULTS.windows[group][edge]);
-        windows[group][edge] = input.value;
-      }
-      windowEls[group].warn.hidden = Schedule.isWindowValid(windows[group]);
-    }
-    return windows;
-  }
-
   // Fills the settings screen and calls onChange with the new settings on every edit.
-  // els: { studios, courses, windows: { weekday|weekend: { from, to, warn } }, showBauch }
+  // els: { studios, courses, dayTimes, showBauch }; dayTimes is filled by days.js.
   function bind(els, schedule, settings, onChange) {
     renderStudios(els.studios, schedule, settings);
     renderCourses(els.courses, schedule, settings);
     els.showBauch.checked = settings.showBauch;
-    for (const group of GROUPS) {
-      for (const edge of EDGES) els.windows[group][edge].value = settings.windows[group][edge];
-    }
-    readWindows(els.windows);
+    let dayTimes = { time: settings.time, days: settings.days };
     const update = () => {
       const next = {
         studios: checkedValues(els.studios),
         courses: checkedValues(els.courses),
-        windows: readWindows(els.windows),
+        ...dayTimes,
         showBauch: els.showBauch.checked,
       };
       save(next);
       onChange(next);
     };
+    DayTimes.bind(els.dayTimes, settings, (next) => { dayTimes = next; update(); });
     els.studios.onchange = update;
     els.courses.onchange = update;
     els.showBauch.onchange = update;
-    for (const group of GROUPS) {
-      for (const edge of EDGES) els.windows[group][edge].onchange = update;
-    }
   }
 
-  return { load, save, prune, bind, isEmpty, normalize };
+  return { load, save, prune, bind, isEmpty, normalize, fromV1, validTime };
 })();
 
 if (typeof module !== "undefined") module.exports = Settings;

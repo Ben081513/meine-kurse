@@ -7,6 +7,7 @@ const Settings = require("../site/settings.js");
 const realData = require("../site/data/schedule.json");
 
 const ALL_DAY = { from: "00:00", to: "23:59" };
+const EVERY_DAY = { 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true };
 
 function studio(classes) {
   return Schedule.clean({ updated: "2026-10-20T11:00:00Z", studios: [{ slug: "x", name: "X", validFrom: "2026-10-01", classes }] });
@@ -43,9 +44,10 @@ test("Bauch Beine Po is not a bauch training", () => {
 
 test("windows: start at or after von, end by bis; bis 00:00 means end of day", () => {
   const [c] = studio([cls(2, "16:00", "16:50", "BodyPump")]).studios[0].classes;
-  assert.ok(Schedule.fitsWindow(c, { weekday: { from: "16:00", to: "23:59" }, weekend: ALL_DAY }));
-  assert.ok(!Schedule.fitsWindow(c, { weekday: { from: "16:01", to: "23:59" }, weekend: ALL_DAY }));
-  assert.ok(!Schedule.fitsWindow(c, { weekday: { from: "00:00", to: "16:49" }, weekend: ALL_DAY }));
+  const at = (from, to) => ({ time: { from, to }, days: EVERY_DAY });
+  assert.ok(Schedule.fitsWindow(c, at("16:00", "23:59")));
+  assert.ok(!Schedule.fitsWindow(c, at("16:01", "23:59")));
+  assert.ok(!Schedule.fitsWindow(c, at("00:00", "16:49")));
   assert.ok(Schedule.isWindowValid({ from: "18:00", to: "00:00" }));
   assert.ok(!Schedule.isWindowValid({ from: "18:00", to: "08:00" }));
 });
@@ -68,7 +70,8 @@ test("acceptance: Mitte + Friedrichshain, BodyPump + Heavy, Mo–Fr ab 16:00", (
   const settings = {
     studios: ["mitte", "friedrichshain"],
     courses: ["BodyPump", "BodyPump Heavy"],
-    windows: { weekday: { from: "16:00", to: "23:59" }, weekend: ALL_DAY },
+    time: { from: "16:00", to: "23:59" },
+    days: { ...EVERY_DAY, 6: ALL_DAY, 7: ALL_DAY },
   };
   const days = Schedule.buildDays(data, settings, new Date(2026, 9, 20)); // Tuesday
   assert.deepStrictEqual(days.map((d) => d.day), [1, 2, 3, 4, 5, 6, 7]);
@@ -81,9 +84,49 @@ test("acceptance: Mitte + Friedrichshain, BodyPump + Heavy, Mo–Fr ab 16:00", (
 });
 
 test("Sunday is the last day and still marked as today", () => {
-  const days = Schedule.buildDays(studio([]), { studios: [], courses: [], windows: { weekday: ALL_DAY, weekend: ALL_DAY } }, new Date(2026, 9, 25));
+  const days = Schedule.buildDays(studio([]), { studios: [], courses: [], time: ALL_DAY, days: EVERY_DAY }, new Date(2026, 9, 25));
   assert.deepStrictEqual(days.filter((d) => d.isToday).map((d) => d.day), [7]);
   assert.equal(days[6].name, "Sonntag");
+});
+
+test("acceptance: Di, Mi, Sa ab 16:00, Mi ab 18:00; global change keeps Mi", () => {
+  const data = Schedule.clean(realData);
+  const settings = Settings.normalize({
+    studios: data.studios.map((s) => s.slug),
+    courses: Schedule.courseGroups(data).KP,
+    time: { from: "16:00", to: "23:59" },
+    days: { 1: false, 2: true, 3: { from: "18:00", to: "23:59" }, 4: false, 5: false, 6: true, 7: false },
+  });
+  const days = Schedule.buildDays(data, settings, new Date(2026, 9, 20));
+  assert.deepStrictEqual(days.map((d) => d.day), [2, 3, 6]);
+  const starts = (list, day) => list.find((d) => d.day === day).entries.map((e) => e.cls.from);
+  assert.ok(starts(days, 2).length > 0 && starts(days, 2).every((m) => m >= 16 * 60));
+  assert.ok(starts(days, 3).length > 0 && starts(days, 3).every((m) => m >= 18 * 60));
+  const later = Schedule.buildDays(data, { ...settings, time: { from: "17:00", to: "23:59" } }, new Date(2026, 9, 20));
+  assert.ok(starts(later, 2).every((m) => m >= 17 * 60));
+  assert.ok(starts(later, 6).every((m) => m >= 17 * 60));
+  assert.deepStrictEqual(starts(later, 3), starts(days, 3));
+});
+
+test("no training day means no days in the list", () => {
+  const off = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false };
+  assert.deepStrictEqual(Schedule.buildDays(studio([]), { studios: [], courses: [], time: ALL_DAY, days: off }, new Date()), []);
+});
+
+test("normalize keeps day choices and repairs broken times", () => {
+  const s = Settings.normalize({ time: { from: "17:00", to: "kaputt" }, days: { 2: false, 3: { from: "18:00" }, 6: "ja" } });
+  assert.deepStrictEqual(s.time, { from: "17:00", to: "23:59" });
+  assert.deepStrictEqual([s.days[1], s.days[2], s.days[3], s.days[6]], [true, false, { from: "18:00", to: "23:59" }, true]);
+});
+
+test("old saved choice (Mo–Fr / Sa–So) is taken over", () => {
+  const same = Settings.fromV1({ studios: ["x"], courses: ["BodyPump"], windows: { weekday: { from: "16:00", to: "23:59" }, weekend: { from: "16:00", to: "23:59" } }, showBauch: false });
+  assert.deepStrictEqual(same.time, { from: "16:00", to: "23:59" });
+  assert.deepStrictEqual(same.days, EVERY_DAY);
+  assert.deepStrictEqual([same.studios, same.courses, same.showBauch], [["x"], ["BodyPump"], false]);
+  const differs = Settings.fromV1({ windows: { weekday: { from: "16:00", to: "23:59" }, weekend: { from: "09:00", to: "14:00" } } });
+  assert.deepStrictEqual(differs.days[5], true);
+  assert.deepStrictEqual([differs.days[6], differs.days[7]], [{ from: "09:00", to: "14:00" }, { from: "09:00", to: "14:00" }]);
 });
 
 test("bauch display is on by default and can be switched off", () => {
@@ -98,4 +141,11 @@ test("studio colors follow the alphabetical order of the chosen studios", () => 
   const picked = StudioColors.forSelection(data, { studios: ["mitte", "friedrichshain"] });
   assert.deepStrictEqual(picked.map((x) => x.studio.name), ["Friedrichshain", "Mitte"]);
   assert.notEqual(picked[0].color.border, picked[1].color.border);
+});
+
+test("PDF header names the chosen days and the days with their own time", () => {
+  const DayTimes = require("../site/days.js");
+  const s = Settings.normalize({ time: { from: "16:00", to: "23:59" }, days: { 1: false, 3: { from: "18:00", to: "23:59" }, 4: false, 5: false, 6: { from: "10:00", to: "14:00" }, 7: false } });
+  assert.equal(DayTimes.summary(s), "Di, Mi, Sa · 16:00–23:59 · Mi ab 18:00 · Sa 10:00–14:00");
+  assert.equal(DayTimes.summary(Settings.normalize({})), "Mo–So · 00:00–23:59");
 });

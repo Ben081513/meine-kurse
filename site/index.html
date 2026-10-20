@@ -40,19 +40,8 @@
     </fieldset>
 
     <fieldset>
-      <legend>Zeitfenster</legend>
-      <div class="window">
-        <span class="window-name">Mo–Fr</span>
-        <label>von <input id="weekday-from" type="time"></label>
-        <label>bis <input id="weekday-to" type="time"></label>
-      </div>
-      <p id="weekday-warn" class="window-warn" hidden>„bis“ muss nach „von“ liegen, sonst wird nichts angezeigt.</p>
-      <div class="window">
-        <span class="window-name">Sa–So</span>
-        <label>von <input id="weekend-from" type="time"></label>
-        <label>bis <input id="weekend-to" type="time"></label>
-      </div>
-      <p id="weekend-warn" class="window-warn" hidden>„bis“ muss nach „von“ liegen, sonst wird nichts angezeigt.</p>
+      <legend>Tage &amp; Uhrzeit</legend>
+      <div id="day-times" class="day-times"></div>
     </fieldset>
 
     <fieldset>
@@ -75,6 +64,7 @@
   <script src="schedule.js"></script>
   <script src="colors.js"></script>
   <script src="pdf.js"></script>
+  <script src="days.js"></script>
   <script src="settings.js"></script>
   <script src="app.js"></script>
 </body>

@@ -7,7 +7,7 @@ const PlanPdf = (() => {
   const GAP = 4;
   const DARK = "#333333";
   const MUTED = "#666666";
-  const MONDAY = new Date(2024, 0, 1); // any Monday: the PDF always runs Mo–So
+  const MONDAY = new Date(2024, 0, 1); // any Monday: the PDF runs Mo–So over the chosen days
 
   function startPage(doc, state) {
     if (state.y !== null) doc.addPage([PAGE.w, PAGE.h]);
@@ -32,7 +32,7 @@ const PlanPdf = (() => {
 
   function titleBar(doc, state) {
     const b = bar(doc, state, 30, 15);
-    doc.text("Meine Kurse (Mo–So)", b.x + b.w / 2, b.mid, { align: "center", baseline: "middle" });
+    doc.text("Meine Kurse", b.x + b.w / 2, b.mid, { align: "center", baseline: "middle" });
     state.y += 36;
   }
 
