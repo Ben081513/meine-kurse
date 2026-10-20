@@ -111,7 +111,7 @@
   }
 
   function daySection(day) {
-    const section = el("section", "day");
+    const section = el("section", day.isToday ? "day is-today" : "day");
     const title = el("h2");
     if (day.isToday) title.append(el("span", "today", "Heute"), " · ");
     title.append(day.name);
@@ -128,6 +128,15 @@
 
   function showError(text) {
     els.list.replaceChildren(el("p", "note error", text));
+  }
+
+  // The list runs Mo–So, so on opening it jumps to today instead of starting at past days.
+  // The sticky top bar would cover the heading, so its height is left free above it.
+  function scrollToToday() {
+    const today = els.list.querySelector(".day.is-today");
+    if (!today) return;
+    const top = today.getBoundingClientRect().top + window.scrollY - document.querySelector(".top").offsetHeight;
+    window.scrollTo({ top: Math.max(0, top) });
   }
 
   function renderList() {
@@ -183,7 +192,10 @@
   // iOS keeps a home-screen app suspended, so "Heute" is redrawn when it comes back on a new day.
   function watchDayChange() {
     document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible" && new Date().toDateString() !== shownDay) renderList();
+      if (document.visibilityState === "visible" && new Date().toDateString() !== shownDay) {
+        renderList();
+        scrollToToday();
+      }
     });
   }
 
@@ -202,6 +214,7 @@
     settings = Settings.prune(settings, schedule);
     bindSettings();
     renderList();
+    scrollToToday();
     watchDayChange();
     if (Settings.isEmpty(settings)) openSettings(true);
   }

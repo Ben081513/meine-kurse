@@ -71,12 +71,19 @@ test("acceptance: Mitte + Friedrichshain, BodyPump + Heavy, Mo–Fr ab 16:00", (
     windows: { weekday: { from: "16:00", to: "23:59" }, weekend: ALL_DAY },
   };
   const days = Schedule.buildDays(data, settings, new Date(2026, 9, 20)); // Tuesday
-  assert.deepStrictEqual(days.map((d) => d.day), [2, 3, 4, 5, 6, 7, 1]);
+  assert.deepStrictEqual(days.map((d) => d.day), [1, 2, 3, 4, 5, 6, 7]);
+  assert.deepStrictEqual(days.filter((d) => d.isToday).map((d) => d.day), [2]);
   const all = days.flatMap((d) => d.entries);
   assert.ok(all.length > 0);
   assert.ok(all.every((e) => e.cls.day >= 6 || e.cls.from >= 16 * 60));
-  const monHeavy = days[6].entries.find((e) => e.cls.name === "BodyPump Heavy" && e.studio.slug === "mitte");
+  const monHeavy = days[0].entries.find((e) => e.cls.name === "BodyPump Heavy" && e.studio.slug === "mitte");
   assert.equal(monHeavy.bauch.before.start, "19:30");
+});
+
+test("Sunday is the last day and still marked as today", () => {
+  const days = Schedule.buildDays(studio([]), { studios: [], courses: [], windows: { weekday: ALL_DAY, weekend: ALL_DAY } }, new Date(2026, 9, 25));
+  assert.deepStrictEqual(days.filter((d) => d.isToday).map((d) => d.day), [7]);
+  assert.equal(days[6].name, "Sonntag");
 });
 
 test("bauch display is on by default and can be switched off", () => {

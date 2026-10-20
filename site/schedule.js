@@ -43,11 +43,6 @@ const Schedule = (() => {
     return date.getDay() === 0 ? 7 : date.getDay();
   }
 
-  function dayOrder(today) {
-    const first = isoDay(today);
-    return Array.from({ length: 7 }, (_, i) => ((first - 1 + i) % 7) + 1);
-  }
-
   // "bis 00:00" means until the end of the day.
   function windowMinutes(w) {
     const to = toMin(w.to);
@@ -94,17 +89,18 @@ const Schedule = (() => {
     return entries;
   }
 
-  // Seven days starting today, each with its matching classes sorted by time.
+  // Monday to Sunday, each with its matching classes sorted by time.
   function buildDays(schedule, settings, today) {
     const byDay = new Map();
     for (const e of entriesFor(schedule, settings)) {
       if (!byDay.has(e.cls.day)) byDay.set(e.cls.day, []);
       byDay.get(e.cls.day).push(e);
     }
-    return dayOrder(today).map((day, i) => ({
+    const todayDay = isoDay(today);
+    return [1, 2, 3, 4, 5, 6, 7].map((day) => ({
       day,
       name: DAY_NAMES[day],
-      isToday: i === 0,
+      isToday: day === todayDay,
       entries: (byDay.get(day) || [])
         .sort((a, b) => a.cls.from - b.cls.from || collator.compare(a.studio.name, b.studio.name)),
     }));
@@ -125,7 +121,7 @@ const Schedule = (() => {
   }
 
   return {
-    clean, buildDays, bauchAround, courseGroups, fitsWindow, isWindowValid, dayOrder, shortName, collator,
+    clean, buildDays, bauchAround, courseGroups, fitsWindow, isWindowValid, shortName, collator,
   };
 })();
 
