@@ -1,0 +1,165 @@
+{
+  "charlottenburg": {
+    "plans": {
+      "KP": {
+        "file": "KP_CH_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabdf4eb6ed7f1cd9ccc1b5_KP_CH_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_CH_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabdf368582a49a3045b445_TT_CH_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "europa-center": {
+    "plans": {
+      "KP": {
+        "file": "KP_EC_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe1dff8145872df469081_KP_EC_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_EC_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe1f528bd3c0444b39ecd_TT_EC_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "forum-steglitz": {
+    "plans": {
+      "KP": {
+        "file": "KP_STM_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe3bb66a1479bc7f4d548_KP_STM_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_STM_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe3c1a0c6cca9b587fbe2_TT_STM_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "friedrichshain": {
+    "plans": {
+      "KP": {
+        "file": "KP_FH_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe22ea6ffe80018aff2a5_KP_FH_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_FH_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe23a28bd3c0444b3a38b_TT_FH_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "gropiusstadt": {
+    "plans": {
+      "KP": {
+        "file": "KP_GR_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe26c7cf6f6869675832c_KP_GR_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_GP_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe27393443d2cfddd7da4_TT_GP_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "koepenick": {
+    "plans": {
+      "KP": {
+        "file": "KP_KÖ_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe2a2a0c6cca9b5876d10_KP_KO%CC%88_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_KÖ_01.10.26n.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6ad09d7f62653e2a4f351108_TT_KO%CC%88_01.10.26n.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "mitte": {
+    "plans": {
+      "KP": {
+        "file": "KP_MI_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe2e7ea1f0fbd72fad51a_KP_MI_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_MI_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe2f37cf6f6869675c83f_TT_MI_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "neukoelln": {
+    "plans": {
+      "KP": {
+        "file": "KP_NK_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe3267cf6f6869675e63f_KP_NK_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_NKM_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe33432010029d2f8732a_TT_NKM_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "neukolln-women": {
+    "plans": {
+      "TT": {
+        "file": "TT_NKM_01.04.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/69c503e305558a894d3e983b_TT_NKM_01.04.26.pdf",
+        "validFrom": "2026-04-01"
+      }
+    }
+  },
+  "potsdam": {
+    "plans": {
+      "KP": {
+        "file": "KP_PO_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe37d46ef51a487a5a755_KP_PO_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_PO_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe38366a1479bc7f4cc21_TT_PO_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "steglitz-women": {
+    "plans": {
+      "KP": {
+        "file": "KP_STW_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe40032010029d2f8bcfb_KP_STW_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_STW_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe407189bd08f82b491cb_TT_STW_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  },
+  "superfit-berlin-tegel": {
+    "plans": {
+      "KP": {
+        "file": "KP_TE_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe44121c357fe03bb6717_KP_TE_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      },
+      "TT": {
+        "file": "TT_TE_01.10.26.pdf",
+        "url": "https://cdn.prod.website-files.com/6814daccdbfcd1feda6231bc/6aabe447e39245bff69a3081_TT_TE_01.10.26.pdf",
+        "validFrom": "2026-10-01"
+      }
+    }
+  }
+}

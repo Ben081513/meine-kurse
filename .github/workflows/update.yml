@@ -1,0 +1,89 @@
+# Updates the course schedule every hour and publishes the app on GitHub Pages.
+#
+# update: runs scraper/run.py on macOS (the OCR tool needs Apple Vision) and
+#         commits site/data/schedule.json and data/sources.json only when they
+#         changed. A plan that could not be read keeps its old classes; the run
+#         still commits the rest and then fails, so GitHub sends an e-mail.
+# deploy: publishes site/ on GitHub Pages, but only when something changed,
+#         after a push to main or when started by hand.
+name: Kursplan aktualisieren
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # every hour; minute 17 avoids GitHub's busy full hour
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["site/**"]
+
+permissions: {}   # each job asks only for what it needs
+
+concurrency:
+  group: kursplan
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.event_name != 'push'
+    runs-on: macos-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write   # push the updated schedule
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kurspläne einlesen
+        id: run
+        run: |
+          set +e
+          python3 scraper/run.py
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Änderungen speichern
+        id: commit
+        run: |
+          git add site/data/schedule.json data/sources.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Keine Änderungen."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Kursplan aktualisiert"
+          git pull --rebase origin "$GITHUB_REF_NAME"   # someone may have pushed meanwhile
+          git push origin "HEAD:$GITHUB_REF_NAME"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Fehler melden
+        if: steps.run.outputs.status != '0'
+        run: |
+          echo "Mindestens ein Kursplan konnte nicht gelesen werden (FEHLER-Zeilen oben). Die alten Kurse bleiben stehen."
+          exit 1
+
+  deploy:
+    needs: update
+    # always() lets a push (update skipped) or a failed read with changes still publish.
+    if: >-
+      always() && (github.event_name != 'schedule' || needs.update.outputs.changed == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}   # the branch head, including the commit made above
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: pages
+        uses: actions/deploy-pages@v4

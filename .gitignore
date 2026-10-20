@@ -1,0 +1,9 @@
+# Downloaded plan PDFs and the compiled OCR tool are rebuilt by scraper/run.py.
+data/pdfs/
+data/bin/
+__pycache__/
+.DS_Store
+# PandaOS workspace files and local screenshots stay on this Mac.
+.claude/
+.pandaos/
+screenshots/

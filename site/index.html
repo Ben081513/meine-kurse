@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meine Kurse</title>
+  <meta name="theme-color" content="#d6004c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Meine Kurse">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Meine Kurse</h1>
+      <p id="stand" class="stand">Lade Kursplan …</p>
+    </div>
+    <div class="top-actions">
+      <button id="export-pdf" class="icon-btn" type="button">PDF</button>
+      <button id="open-settings" class="icon-btn" type="button" aria-controls="settings" aria-expanded="false">Einstellungen</button>
+    </div>
+  </header>
+
+  <main id="list" class="list" aria-live="polite"></main>
+
+  <section id="settings" class="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="settings-head">
+      <h2 id="settings-title">Einstellungen</h2>
+      <button id="close-settings" class="done-btn" type="button">Fertig</button>
+    </div>
+
+    <fieldset>
+      <legend>Studios</legend>
+      <div id="studio-chips" class="chips"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Zeitfenster</legend>
+      <div class="window">
+        <span class="window-name">Mo–Fr</span>
+        <label>von <input id="weekday-from" type="time"></label>
+        <label>bis <input id="weekday-to" type="time"></label>
+      </div>
+      <p id="weekday-warn" class="window-warn" hidden>„bis“ muss nach „von“ liegen, sonst wird nichts angezeigt.</p>
+      <div class="window">
+        <span class="window-name">Sa–So</span>
+        <label>von <input id="weekend-from" type="time"></label>
+        <label>bis <input id="weekend-to" type="time"></label>
+      </div>
+      <p id="weekend-warn" class="window-warn" hidden>„bis“ muss nach „von“ liegen, sonst wird nichts angezeigt.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Kurse</legend>
+      <div id="course-chips" class="chips"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Anzeige</legend>
+      <label class="toggle">
+        <span>Bauchtraining davor/danach anzeigen</span>
+        <input id="show-bauch" type="checkbox" role="switch">
+      </label>
+    </fieldset>
+
+    <p class="hint">Deine Auswahl wird nur auf diesem Gerät gespeichert.</p>
+  </section>
+
+  <script src="vendor/jspdf.umd.min.js"></script>
+  <script src="schedule.js"></script>
+  <script src="colors.js"></script>
+  <script src="pdf.js"></script>
+  <script src="settings.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
