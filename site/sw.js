@@ -1,11 +1,12 @@
 // Offline support: the schedule comes from the network first so a new plan
 // shows up as soon as there is a connection; the cache is the fallback.
 // Bump CACHE whenever SHELL changes, so files no longer listed are removed.
-const CACHE = "meine-kurse-v5";
+const CACHE = "meine-kurse-v6";
 const SHELL = [
   "./",
   "index.html",
   "styles.css",
+  "days.css",
   "schedule.js",
   "days.js",
   "settings.js",

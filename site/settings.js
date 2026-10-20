@@ -33,8 +33,9 @@ const Settings = (() => {
     s.courses = strings(raw.courses);
     if (typeof raw.showBauch === "boolean") s.showBauch = raw.showBauch;
     s.time = time(raw.time, ALL_DAY);
+    const days = raw.days && typeof raw.days === "object" && !Array.isArray(raw.days) ? raw.days : {};
     for (const day of DAYS) {
-      const d = raw.days && raw.days[day];
+      const d = days[day];
       if (d === false) s.days[day] = false;
       else if (d && typeof d === "object") s.days[day] = time(d, s.time);
     }
@@ -60,7 +61,11 @@ const Settings = (() => {
       const saved = localStorage.getItem(KEY);
       if (saved !== null) return normalize(JSON.parse(saved));
       const old = localStorage.getItem(OLD_KEY);
-      return old === null ? structuredClone(DEFAULTS) : fromV1(JSON.parse(old));
+      if (old === null) return structuredClone(DEFAULTS);
+      // Saved once in the new format; the old entry stays as it was.
+      const migrated = fromV1(JSON.parse(old));
+      save(migrated);
+      return migrated;
     } catch (err) {
       console.warn("Gespeicherte Auswahl unlesbar, starte leer", err);
       return structuredClone(DEFAULTS);

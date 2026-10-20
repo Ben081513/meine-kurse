@@ -56,6 +56,7 @@ const Schedule = (() => {
 
   // settings.days[day]: true = the shared time, false = not a training day,
   // { from, to } = this day's own time. Returns null for a day that is off.
+  // Expects settings that went through Settings.normalize.
   function dayWindow(settings, day) {
     const d = settings.days[day];
     if (d === false) return null;
@@ -136,7 +137,7 @@ const Schedule = (() => {
   }
 
   return {
-    clean, buildDays, bauchAround, courseGroups, fitsWindow, dayWindow, activeDays, isWindowValid,
+    clean, buildDays, bauchAround, courseGroups, fitsWindow, activeDays, isWindowValid,
     shortName, collator, DAY_NAMES,
   };
 })();

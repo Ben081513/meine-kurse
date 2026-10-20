@@ -1,0 +1,63 @@
+/* "Tage & Uhrzeit": built by days.js, see slice detail "days-design". */
+.day-times { clear: both; }
+.day-times .group-title { margin-top: 12px; font-weight: 600; }
+.day-times .group-title:first-child { margin-top: 0; }
+.day-row { display: flex; justify-content: space-between; gap: 4px; }
+.day-btn {
+  flex: 1;
+  max-width: 40px;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.day-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.day-btn:active { transform: scale(0.94); }
+.quick { display: flex; gap: 8px; margin: 10px 0 4px; }
+.mini-btn {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+.disclosure {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 8px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  color: var(--text);
+  text-align: left;
+}
+.disclosure strong { display: block; font-size: 15px; }
+.disclosure small { display: block; font-size: 13px; color: var(--muted); }
+.disclosure small.differs { color: var(--accent); font-weight: 600; }
+.chev { display: flex; color: var(--muted); transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1); }
+.disclosure[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.perday-row { padding: 8px 0; border-top: 1px solid var(--line); }
+.perday-row:first-child { margin-top: 8px; }
+.perday-top { display: flex; align-items: center; gap: 8px; }
+.perday-name { width: 2.4em; font-weight: 600; }
+.perday-val { flex: 1; font-size: 14px; color: var(--muted); }
+.perday-val.own { color: var(--text); font-weight: 600; }
+.perday-row .window, .perday-row .window-warn { padding-left: 2.4em; }
+.link-btn { min-height: 32px; padding: 0 4px; border: 0; background: none; color: var(--accent); font-size: 14px; font-weight: 600; }
+.day-btn:focus-visible, .mini-btn:focus-visible, .link-btn:focus-visible, .disclosure:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

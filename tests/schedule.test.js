@@ -149,3 +149,39 @@ test("PDF header names the chosen days and the days with their own time", () => 
   assert.equal(DayTimes.summary(s), "Di, Mi, Sa · 16:00–23:59 · Mi ab 18:00 · Sa 10:00–14:00");
   assert.equal(DayTimes.summary(Settings.normalize({})), "Mo–So · 00:00–23:59");
 });
+
+function fakeStorage(entries) {
+  const store = new Map(Object.entries(entries));
+  global.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, String(v)),
+  };
+  return store;
+}
+
+test("load: old choice is migrated and saved once, a new save wins, broken JSON starts empty", () => {
+  const v1 = JSON.stringify({ studios: ["x"], windows: { weekday: { from: "16:00", to: "23:59" }, weekend: { from: "16:00", to: "23:59" } } });
+  const store = fakeStorage({ "meine-kurse:settings:v1": v1 });
+  assert.deepStrictEqual(Settings.load().time, { from: "16:00", to: "23:59" });
+  assert.equal(JSON.parse(store.get("meine-kurse:settings:v2")).time.from, "16:00");
+  assert.equal(store.get("meine-kurse:settings:v1"), v1);
+
+  fakeStorage({ "meine-kurse:settings:v1": v1, "meine-kurse:settings:v2": JSON.stringify({ time: { from: "08:00", to: "12:00" } }) });
+  assert.equal(Settings.load().time.from, "08:00");
+
+  fakeStorage({ "meine-kurse:settings:v2": "{kaputt" });
+  assert.deepStrictEqual(Settings.load(), Settings.normalize({}));
+  delete global.localStorage;
+});
+
+test("days saved as an array are ignored instead of read shifted", () => {
+  assert.deepStrictEqual(Settings.normalize({ days: [false, false] }).days, EVERY_DAY);
+});
+
+test("PDF header: Mo–Fr, no day, and an own time equal to the shared one", () => {
+  const DayTimes = require("../site/days.js");
+  const t = { from: "16:00", to: "23:59" };
+  assert.equal(DayTimes.summary(Settings.normalize({ time: t, days: { 6: false, 7: false, 2: t } })), "Mo–Fr · 16:00–23:59");
+  const off = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false };
+  assert.equal(DayTimes.summary(Settings.normalize({ days: off })), "Keine Trainingstage gewählt");
+});
